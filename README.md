@@ -75,16 +75,22 @@ The main drawback is that no part of the definition of
 `template<class T> struct Monoid` is present in any of 
 its specializations. So all the code in that definition 
 describes only how the types for which the typeclass 
-is not implemented behave. Thus the better version of the 
-typeclass definition would be simply
+is not implemented behave. 
+
+The problem is that we have no _simple_  way of defining default method 
+implementations or enforcing logical constraints like "all instances 
+of the typeclass A must also be instances of the typeclass B".
+
+
+Because the general typeclass template definition is concerned 
+with the case of "type T is not an instance of the typeclass",
+a much better version of the typeclass definition would be simply
 
 ``` c++
 template<class T> struct Monoid;
 ```
 
-The problem is that we have no _simple_ (but look [here](#comparison-with-the-naive-version)) way of defining default method 
-implementations or enforcing logical constraints like "all instances 
-of the typeclass A must also be instances of the typeclass B".
+This line of thought gets us to [the following](#comparison-with-the-naive-version).
 
 
 ### "Less naive" translation
