@@ -25,12 +25,19 @@ int main() {
     TC_REQUIRE(Good<Foo<int>>); // satisfied
     TC_REQUIRE(Good<Foo<Foo<int>>>); // satisfied
     // TC_REQUIRE(Good<Foo<double>>); // won't compile
-
-    TC_IMPL(Good<Foo<double>>) ThisCompiles;
-    // TC_IMPL can't be used to put a constraint on a function definition
-    // because of lazy template instantiation (ThisCompiles gets instantiated 
-    // only if you use some of its methods but there are none to use...)
+    // TC_IMPL(Good<double>) WontCompileAlso;
     
-    // ThisCompiles NOT; // but an explicit variable can be used with TC_IMPL
-    // ThisCompiles(); // the form which doesn't use a gratuitous identifier
+    TC_IMPL(Good<Foo<double>>) ThisCompiles;
+    // TC_IMPL typedef can't be reliably used to put a constraint 
+    // on a function definition because the type 
+    //
+    //     _tc_impl_<Good<Foo<T>>>::type 
+    //
+    // is declared for any T.
+    //
+    // But we can use the fact that the definition of this type 
+    // is erroneous for some values of T:
+
+    // ThisCompiles NOT; // an explicit variable can be used with TC_IMPL
+    // ThisCompiles(); // or the form which doesn't use a gratuitous identifier
 }
