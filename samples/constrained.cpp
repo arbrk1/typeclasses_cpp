@@ -11,6 +11,7 @@ template<class T>
 TC_INSTANCE(Good<Foo<T>>, {
     TC_REQUIRE(Good<T>);  // constraint on an instance definition
     
+    // TC_IMPL(Good<T>) GoodT;
     // A possible alternative: TC_IMPL(Good<T>) GoodT;
     //
     // But TC_REQUIRE is better than TC_IMPL because it doesn't need 

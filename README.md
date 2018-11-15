@@ -79,10 +79,10 @@ is not implemented behave. Thus the better version of the
 typeclass definition would be simply
 
 ``` c++
-template<class T> struct Monoid {};
+template<class T> struct Monoid;
 ```
 
-The problem is that we have no way of defining default method 
+The problem is that we have no _simple_ (but look [here](#comparison-with-the-naive-version)) way of defining default method 
 implementations or enforcing logical constraints like "all instances 
 of the typeclass A must also be instances of the typeclass B".
 
@@ -114,7 +114,7 @@ currently we (do not yet) have only "Concepts Lite".
 
 ## This implementation
 
-Our implementation solves the problem that the template specializations 
+Our implementation solves the issue that the template specializations 
 override the original definition by never specializing the definition 
 of a typeclass. Instead all typeclass instances are stored as 
 specializations of a separate type (this type is same for all 
@@ -281,10 +281,10 @@ if `Baz` doesn't implement the `Foo` typeclass.
 
 But sometimes typeclasses are used as a sort of marker (e.g. Rust 
 marker traits like `Clone`): a fact that some relation holds 
-between some types. Usually such typeclasses have no methods so 
+between some types. Frequently such typeclasses have no methods so 
 the mechanism described above is useless.
 
-We use a rather dumb solution: a static assert checking if 
+We use a rather dumb solution: a `static_assert` checking if 
 a static `type` field is present on the specific `_tc_impl_` 
 specialization.
 
@@ -400,5 +400,17 @@ to a typeclass system.
 
 An example of existential types can be seen in 
 the [show.cpp](./samples/show.cpp) file.
+
+
+## Comparison with the "naive" version
+
+At the cost of slightly complicating the macros the "naive" version 
+described [above](#naive-translation) could be endowed with the 
+same features as the [tc.hpp](./tc.hpp) implementation.
+
+See the [tc_alt.hpp](./tc_alt.hpp) header and the 
+[alt_samples](./alt_samples/) directory. Significant differences in 
+the usage are marked by a `// DIFFERENCE` comment.
+
 
 
