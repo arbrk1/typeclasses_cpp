@@ -3,7 +3,7 @@ WITH_CONCEPTS = concept show_concept super_concept constrained_concept
 NAMES = ${WO_CONCEPTS} ${WITH_CONCEPTS}
 
 TC_HEADER = ../tc.hpp
-FLAGS = -std=c++11
+FLAGS = -std=c++14
 CXX = g++
 
 CONCEPT_HEADER = ../tc_concept.hpp
@@ -16,14 +16,14 @@ wo_concepts: ${WO_CONCEPTS}
 ## use make all to build all the programs
 all: ${NAMES}
 
-${WO_CONCEPTS}: $@.cpp ${TC_HEADER}
+${WO_CONCEPTS}: %: %.cpp ${TC_HEADER}
 	${CXX} ${FLAGS} $@.cpp -o $@
 
-${WITH_CONCEPTS}: $@.cpp ${TC_HEADER}
+${WITH_CONCEPTS}: %: %.cpp ${TC_HEADER} ${CONCEPT_HEADER}
 	${CONCEPT_CXX} ${CONCEPT_FLAGS} $@.cpp -o $@
 
 clean:
-	rm ${NAMES}
+	rm -vf ${NAMES}
 
 .PHONY: clean
 
