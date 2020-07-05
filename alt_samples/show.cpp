@@ -12,7 +12,7 @@ TC_DEF(Show, class T, {
 template<>
 TC_INSTANCE(Show, int, {
     static std::string show(int const & x) {
-        return std::to_string(x);
+        return ("int"+std::to_string(x));
     }
 });
 
@@ -49,7 +49,7 @@ TC_INSTANCE(Show, std::vector<T>, {
 });
 
 
-// print Show instances; old operator<< overloads are working due to SFINAE
+// print Show instances
 template<class T>
 std::ostream & operator<<(std::ostream & os, T const & x) {
     // we are using std::operator<< explicitly to avoid ambigous overload
@@ -91,7 +91,7 @@ struct DynShowWrapper: DynShow {
     DynShowWrapper(T x): self(x) {}
 };
 
-// type-inferencing constructor
+// type-inferring constructor
 template<class T>
 std::unique_ptr<DynShow> to_show(T x) {
     return std::make_unique<DynShowWrapper<T>>(x);
@@ -108,8 +108,8 @@ TC_INSTANCE(Show, std::unique_ptr<T>, {
 
 
 int main() {
-    std::cout << 123 << std::endl;  // new Show instance
-    std::cout << 123. << std::endl;  // old double overload (SFINAE)
+    std::cout << 123 << std::endl;   // old int overload (more specific)
+    std::cout << 123. << std::endl;  // old double overload
     std::cout << Foo() << std::endl; // new and the only overload
     std::cout << std::vector<int>{1,2,3} << std::endl;  // new Show instance
     // std::cout << std::vector<double>{1,2,3} << std::endl;  // won't compile

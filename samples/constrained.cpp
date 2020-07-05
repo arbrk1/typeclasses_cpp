@@ -9,7 +9,7 @@ template<class T> struct Good{};
 
 template<class T> 
 TC_INSTANCE(Good<Foo<T>>, {
-    TC_REQUIRE(Good<T>);  // constraint on an instance definition
+    TC_REQUIRE(Good<T>);  // constraint on an instance
     
     // A possible alternative: TC_IMPL(Good<T>) GoodT;
     //

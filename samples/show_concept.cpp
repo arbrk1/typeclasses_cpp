@@ -3,7 +3,13 @@
 #include <string>
 #include <memory>
 #include <type_traits>
-#include "../tc.hpp"
+#include "../tc_concept.hpp"
+
+// Demonstrates overload selection by means of requirements.
+//
+// Requirements allow one to easily match all the types NOT implementing 
+// a typeclass.
+
 
 template<class T>
 struct Show {
@@ -30,7 +36,7 @@ TC_INSTANCE(Show<Foo>, {
 
 
 // Show a => Show [a]
-template<class T>
+template<class T> requires Instance<Show<T>>
 TC_INSTANCE(Show<std::vector<T>>, {
     static std::string show(std::vector<T> const & xs) {
         std::string res = "[";
@@ -52,10 +58,18 @@ TC_INSTANCE(Show<std::vector<T>>, {
 
 
 // print Show instances
-template<class T>
+template<class T> requires Instance<Show<T>>
 std::ostream & operator<<(std::ostream & os, T const & x) {
     // we are using std::operator<< explicitly to avoid ambigous overload
     std::operator<<(os,tc_impl_t<Show<T>>::show(x));
+    return os;
+}
+
+// print non-Show instances
+template<class T>
+std::ostream & operator<<(std::ostream & os, T const & x) {
+    // we are using std::operator<< explicitly to avoid ambigous overload
+    std::operator<<(os, "<UNSHOWABLE>");
     return os;
 }
 
@@ -114,7 +128,9 @@ int main() {
     std::cout << 123. << std::endl;  // old double overload
     std::cout << Foo() << std::endl; // new and the only overload
     std::cout << std::vector<int>{1,2,3} << std::endl;  // new Show instance
-    // std::cout << std::vector<double>{1,2,3} << std::endl;  // won't compile
+    
+    // A correct overload is selected.
+    std::cout << std::vector<double>{1,2,3} << std::endl;
 
     // And now enter the dynamic Show trait: 
     std::cout << to_show(3) << std::endl;

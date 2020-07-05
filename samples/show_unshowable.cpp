@@ -5,14 +5,25 @@
 #include <type_traits>
 #include "../tc.hpp"
 
+// This example shows how to select overload on the basis
+// of whether some type belongs to some typeclass or not.
+//
+// This is a conceptless analogue of show_concept.cpp, using explicit SFINAE 
+// and a lot of magic to make it work as intended...
+//
+// Changes are marked with ##NEW##.
+
+
 template<class T>
 struct Show {
-    static std::string show(T const &) = delete;
+    static std::string show(T const &x) = delete;
 };
 
 // Show int
 template<>
 TC_INSTANCE(Show<int>, {
+    static void requirements () {} // ##NEW##
+
     static std::string show(int const & x) {
         return ("int"+std::to_string(x));
     }
@@ -23,15 +34,21 @@ struct Foo{};
 // Show Foo
 template<>
 TC_INSTANCE(Show<Foo>, {
+    static void requirements () {} // ##NEW##
+
     static std::string show(Foo const & x) {
         return "Foo";
     }
 });
 
 
+
 // Show a => Show [a]
 template<class T>
 TC_INSTANCE(Show<std::vector<T>>, {
+    template<class P = _tc_impl_<Show<T>>, class Q = typename P::type>
+    static void requirements () {} // ##NEW##
+
     static std::string show(std::vector<T> const & xs) {
         std::string res = "[";
 
@@ -51,12 +68,28 @@ TC_INSTANCE(Show<std::vector<T>>, {
 });
 
 
-// print Show instances
-template<class T>
-std::ostream & operator<<(std::ostream & os, T const & x) {
-    // we are using std::operator<< explicitly to avoid ambigous overload
-    std::operator<<(os,tc_impl_t<Show<T>>::show(x));
+// print Show instances ##NEW## (now a function instead of an operator)
+template<class T,
+    class P = _tc_impl_<Show<T>>,
+    class Q = typename P::type,
+    class = decltype(Q::requirements())  // !!!!???!!!!
+>
+std::ostream & operator_out(std::ostream & os, T const & x) {
+    std::operator<<(os, Q::show(x));
     return os;
+}
+
+// ##NEW##
+template<class T, class... Dummy>  // less specific (a dirty hack...)
+std::ostream & operator_out(std::ostream & os, T const & x, Dummy...) {
+    std::operator<<(os, "<UNSHOWABLE>");
+    return os;
+}
+
+// ##NEW##
+template<class T> // another dirty hack (operator<< can't be defined with template varargs)
+std::ostream & operator<<(std::ostream & os, T const &x) {
+    return operator_out(os, x);
 }
 
 
@@ -76,6 +109,8 @@ struct DynShow {
 // We have to provide some Show instance to DynShow values.
 template<>
 TC_INSTANCE(Show<DynShow>, {
+    static void requirements () {} // ##NEW##
+
     static std::string show(DynShow const & x) {
         return x.show_me();
     }
@@ -103,6 +138,8 @@ std::unique_ptr<DynShow> to_show(T x) {
 // in rust this would be: impl<T: Show+?Sized> Show for Box<T> 
 template<class T>
 TC_INSTANCE(Show<std::unique_ptr<T>>, {
+    static void requirements () {} // ##NEW##
+
     static std::string show(std::unique_ptr<T> const & ptr) {
         return tc_impl_t<Show<T>>::show(*ptr);
     }
@@ -114,7 +151,9 @@ int main() {
     std::cout << 123. << std::endl;  // old double overload
     std::cout << Foo() << std::endl; // new and the only overload
     std::cout << std::vector<int>{1,2,3} << std::endl;  // new Show instance
-    // std::cout << std::vector<double>{1,2,3} << std::endl;  // won't compile
+    
+    // Unshowable 
+    std::cout << std::vector<double>{1,2,3} << std::endl;
 
     // And now enter the dynamic Show trait: 
     std::cout << to_show(3) << std::endl;

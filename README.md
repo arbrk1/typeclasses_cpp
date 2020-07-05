@@ -4,6 +4,16 @@ This repository is an experiment with defining a rather complete
 [typeclass system](https://en.wikipedia.org/wiki/Type_class) inside 
 the C++ language. 
 
+## Update (2020/07/05)
+
+The nearing of the C++20 standard has led me to revise this repository.
+
+Following changes have been made:
+
+* a few erroneus statements on SFINAE fixed
+* a new concept `Instance` introduced
+* some new examples devised
+
 ## Introduction
 
 Typical uses of typeclasses are following:
@@ -41,7 +51,7 @@ a single type alias (which can be used in place of one of the previously
 mentioned C++98 macros), a single short struct definition and a single 
 one-line macro for forcing compile-time constraints.
 
-## Existing implementations (of which existence I know)
+## Existing implementations (of which existence I am aware)
 
 This is a (very likely incomplete) list of C++ typeclass implementations 
 which can be easily googled.
@@ -114,8 +124,32 @@ so that a semantic category membership can be compile-time checked.
 
 Some of the other typeclass features were present in a previous 
 iteration of the concept system (so called "C++0x concepts") but 
-currently we (do not yet) have only "Concepts Lite".
+currently we have only a sort of "Concepts Lite".
 
+It may be interesting to compare concepts and typeclasses w.r.t. 
+their logical strength.
+
+Typeclasses support recursion, but can use only a conjunctive part of logic 
+(i.e. one can say &#8220;type T belongs to a class X 
+if T belongs to Y and to Z&#8221;, but cannot say &#8220;type T belongs 
+to a class X if T belongs to at least one of Y and Z&#8221;).
+
+Concepts __do not__ support recursion, but can use the logical 
+disjunction (with concepts there is no such a thing as 
+a conflict of implementations).
+
+Also concepts are an &#8220;if-and-only-if&#8221; condition as opposed 
+to typeclasses, which allow to express separate implications 
+in both directions.
+
+Nevertheless, the introduction of concepts allows one to replace 
+[a rather clunky `TC_REQUIRE` macro](#constraining-implementations)
+with a simple constraint `Instance` (see `tc_concept.hpp`). 
+
+This constraint allows, for example, dispatching on the fact of 
+some type being an instance of some typeclass (see `concept.cpp` and 
+`show_concept.cpp`). For a workaround not using concepts 
+see `show_unshowable.cpp`.
 
 
 ## This implementation
@@ -261,7 +295,7 @@ tc_impl_t<Foo<Bar,Baz>>::foo();
 It can be used in conjunction with `decltype` to get a sort of 
 poor man's type inference.
 
-Fortunately, typeclasses play rather well with SFINAE (see 
+Fortunately, typeclasses play rather well with template overloads (see 
 [show.cpp](./samples/show.cpp) where a templated overload of `operator<<` 
 is used to infer a correct typeclass instance) so in some cases 
 one doesn't need to specify any types at all.

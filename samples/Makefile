@@ -1,23 +1,26 @@
-NAMES = eq functor constrained show default
-HEADER = ../tc.hpp
-FLAGS = -std=c++14
+WO_CONCEPTS = eq functor constrained show show_unshowable default super 
+WITH_CONCEPTS = concept show_concept super_concept constrained_concept
+NAMES = ${WO_CONCEPTS} ${WITH_CONCEPTS}
 
+TC_HEADER = ../tc.hpp
+FLAGS = -std=c++11
+CXX = g++
+
+CONCEPT_HEADER = ../tc_concept.hpp
+CONCEPT_FLAGS = -std=c++20
+CONCEPT_CXX = clang++
+
+## by default we build only programs not using concepts
+wo_concepts: ${WO_CONCEPTS}  
+
+## use make all to build all the programs
 all: ${NAMES}
 
-eq: eq.cpp ${HEADER}
-	g++ ${FLAGS} eq.cpp -o eq
+${WO_CONCEPTS}: $@.cpp ${TC_HEADER}
+	${CXX} ${FLAGS} $@.cpp -o $@
 
-functor: functor.cpp ${HEADER}
-	g++ ${FLAGS} functor.cpp -o functor
-
-constrained: constrained.cpp ${HEADER}
-	g++ ${FLAGS} constrained.cpp -o constrained
-
-show: show.cpp ${HEADER}
-	g++ ${FLAGS} show.cpp -o show
-
-default: default.cpp ${HEADER}
-	g++ ${FLAGS} default.cpp -o default
+${WITH_CONCEPTS}: $@.cpp ${TC_HEADER}
+	${CONCEPT_CXX} ${CONCEPT_FLAGS} $@.cpp -o $@
 
 clean:
 	rm ${NAMES}

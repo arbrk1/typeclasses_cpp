@@ -55,7 +55,7 @@ template<class T> struct _tc_impl_;
 // an alternative for the TC_IMPL macro
 template<class T> using tc_impl_t = typename _tc_impl_<T>::type;
 
-// a mechanism for putting constraints on instantiations or implementations
+// a mechanism for putting constraints on instantiations or definitions
 template<class T> struct _tc_dummy_ { static bool const value = true; T t; };
 #define TC_REQUIRE(tc...) \
     static_assert( _tc_dummy_<tc_impl_t<tc>>::value, "unreachable" );
