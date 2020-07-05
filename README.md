@@ -11,14 +11,14 @@ The nearing of the C++20 standard has led me to revise this repository.
 Following changes have been made:
 
 * a few erroneus statements on SFINAE fixed
-* a new concept `Instance` introduced
+* a concept `Instance` introduced (see `tc_concept.hpp`)
 * some new examples devised
 
 ## Introduction
 
 Typical uses of typeclasses are following:
 
-1. a solution to the "expression problem" (concerned with extending
+1. a solution to the &#8220;expression problem&#8221; (concerned with extending
    a datatype both with new operations and new variants without touching 
    existing code)
 2. a rich interface (an interface with a small set of required methods and 
@@ -56,7 +56,7 @@ one-line macro for forcing compile-time constraints.
 This is a (very likely incomplete) list of C++ typeclass implementations 
 which can be easily googled.
 
-### "Naive" translation
+### &#8220;Naive&#8221; translation
 
 E.g. <http://www.nauths.fr/en/2015/04/26/cpp-typeclasses.html> or 
 <http://blog.shaynefletcher.org/2016/10/haskell-type-classes-in-ocaml-and-c.html>.
@@ -88,12 +88,12 @@ describes only how the types for which the typeclass
 is not implemented behave. 
 
 The problem is that we have no _simple_  way of defining default method 
-implementations or enforcing logical constraints like "all instances 
-of the typeclass A must also be instances of the typeclass B".
+implementations or enforcing logical constraints like &#8220;all instances 
+of the typeclass A must also be instances of the typeclass B&#8221;.
 
 
 Because the general typeclass template definition is concerned 
-with the case of "type T is not an instance of the typeclass",
+with the case of &#8220;type T is not an instance of the typeclass&#8221;,
 a much better version of the typeclass definition would be simply
 
 ``` c++
@@ -103,7 +103,7 @@ template<class T> struct Monoid;
 This line of thought gets us to [the following](#comparison-with-the-naive-version).
 
 
-### "Less naive" translation
+### &#8220;Less naive&#8221; translation
 
 A blogpost <https://functionalcpp.wordpress.com/2013/08/16/type-classes/> has 
 a little more elaborate definition using an explicit static boolean 
@@ -123,8 +123,8 @@ provide only the third one: they group types into semantic categories
 so that a semantic category membership can be compile-time checked.
 
 Some of the other typeclass features were present in a previous 
-iteration of the concept system (so called "C++0x concepts") but 
-currently we have only a sort of "Concepts Lite".
+iteration of the concept system (so called &#8220;C++0x concepts&#8221;) but 
+currently we have only a sort of &#8220;Concepts Lite&#8221;.
 
 It may be interesting to compare concepts and typeclasses w.r.t. 
 their logical strength.
@@ -147,7 +147,7 @@ Nevertheless, the introduction of concepts allows one to replace
 with a simple constraint `Instance` (see `tc_concept.hpp`). 
 
 This constraint allows, for example, dispatching on the fact of 
-some type being an instance of some typeclass (see `concept.cpp` and 
+some type __not__ being an instance of some typeclass (see `concept.cpp` and 
 `show_concept.cpp`). For a workaround not using concepts 
 see `show_unshowable.cpp`.
 
@@ -304,7 +304,7 @@ one doesn't need to specify any types at all.
 ### Constraining implementations
 
 The mechanism of C++ template instantiation provides an automatic 
-checking of typeclass instance "real" dependencies (required by 
+checking of typeclass instance &#8220;real&#8221; dependencies (required by 
 typeclass method implementations). E.g. with the following definition
 
 ``` c++
@@ -335,6 +335,35 @@ template<class T> struct _tc_dummy_ { static bool const value = true; T t; };
 ```
 
 It's very likely that a more beautiful solution exists.
+
+#### Update (2020/07/05)
+
+Now there definitely exists a more beautiful solution: beginning from C++20, 
+a requirement can be placed between `template<...>` and the corresponding 
+class or instance definition:
+
+``` c++
+template<class T> requires Instance<Foo<T>> // constraint on a class
+struct Bar { ... };
+// Rust:    trait Bar: Foo { ... }
+// Haskell: class (Foo x) => Bar x where { ... }
+
+template<class T> requires Instance<Good<T>> // constraint on an instance
+TC_INSTANCE(Good<Foo<T>>, { ... });
+// Rust:    impl<T: Good> Good for Foo<T> { ... }
+// Haskell: instance (Good x) => Good (Foo x)
+
+template<class T> requires Instance<Foo<T>> // constraint on an overload
+void foo(T t) { ... }
+// Rust:    fn foo<T: Foo>(t: T) { ... }
+// Haskell: foo :: (Foo x) => x -> IO ()
+//
+// Note: this analogy is not precise. C++ allows to define the second 
+// "fallback" overload, which is selected for types NOT implementing Foo:
+template<class T> void foo(T t) { ... }
+```
+
+#### End of update
 
 Also note that such a constraint can be placed using C++98-only constructs:
 
@@ -442,9 +471,9 @@ An example of existential types can be seen in
 the [show.cpp](./samples/show.cpp) file.
 
 
-## Comparison with the "naive" version
+## Comparison with the &#8220;naive&#8221; version
 
-At the cost of slightly complicating the macros the "naive" version 
+At the cost of slightly complicating the macros the &#8220;naive&#8221; version 
 described [above](#naive-translation) could be endowed with the 
 same features as the [tc.hpp](./tc.hpp) implementation.
 
