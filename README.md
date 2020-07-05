@@ -11,7 +11,7 @@ The nearing of the C++20 standard has led me to revise this repository.
 Following changes have been made:
 
 * a few erroneus statements on SFINAE fixed
-* a concept `Instance` introduced (see `tc_concept.hpp`)
+* a concept `Instance` introduced (see [tc_concept.hpp](./tc_concept.hpp))
 * some new examples devised
 
 ## Introduction
@@ -144,12 +144,14 @@ in both directions.
 
 Nevertheless, the introduction of concepts allows one to replace 
 [a rather clunky `TC_REQUIRE` macro](#constraining-implementations)
-with a simple constraint `Instance` (see `tc_concept.hpp`). 
+with a simple constraint `Instance` (see [tc_concept.hpp](./tc_concept.hpp)). 
 
 This constraint allows, for example, dispatching on the fact of 
-some type __not__ being an instance of some typeclass (see `concept.cpp` and 
-`show_concept.cpp`). For a workaround not using concepts 
-see `show_unshowable.cpp`.
+some type __not__ being an instance of some typeclass 
+(see [concept.cpp](./samples/concept.cpp) and 
+[show_concept.cpp](./samples/show_concept.cpp)). 
+For a workaround not using concepts 
+see [show_unshowable.cpp](./samples/show_unshowable.cpp).
 
 
 ## This implementation
